@@ -1,0 +1,76 @@
+#### general settings
+name: 002_HCFlow_CelebA_x8_bicSR_test
+suffix: ~
+use_tb_logger: true
+model: SRFLOW
+distortion: sr
+scale: 8
+quant: 256
+gpu_ids: [0]
+
+
+#### datasets
+datasets:
+  test0:
+    name: SRFLOW_vs_DSE
+    mode: GT
+    dataroot_GT: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/x_gt
+    dataroot_LQ: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/y_gt
+    n_max: 100
+
+ # val:
+ #   name: SR_CelebA_8X_160_val
+ #   mode: LRHR_PKL
+ #   dataroot_GT: /home/gb511/score_sde_pytorch-1/datasets/celebA-HQ-160/CelebAHq_160_MBic_va.pklv4
+ #   dataroot_LQ: /home/gb511/score_sde_pytorch-1/datasets/celebA-HQ-160/CelebAHq_160_MBic_va_X8.pklv4
+ #   n_max: 5000
+#
+#  test:
+#    name: SR_CelebA_8X_160_test
+#    mode: LRHR_PKL
+#    dataroot_GT: /cluster/work/cvl/sr_datasets/srflow/celebA/CelebAHq_160_MBic_te.pklv4
+#    dataroot_LQ: /cluster/work/cvl/sr_datasets/srflow/celebA/CelebAHq_160_MBic_te_X8.pklv4
+#    n_max: 5000
+
+
+
+
+#### network structures
+network_G:
+  which_model_G: SRFlowNet
+  in_nc: 3
+  out_nc: 3
+  nf: 64
+  nb: 8
+  upscale: 8
+  train_RRDB: false
+  train_RRDB_delay: 0.5
+
+  flow:
+    K: 16
+    L: 4
+    noInitialInj: true
+    coupling: CondAffineSeparatedAndCond
+    additionalFlowNoAffine: 2
+    split:
+      enable: true
+    fea_up0: true
+    stackRRDB:
+      blocks: [ 1, 3, 5, 7 ]
+      concat: true
+
+
+#### validation settings
+val:
+  heats: [0.8]
+  n_sample: 5
+
+
+path:
+  strict_load: true
+  load_submodule: ~
+  pretrain_model_G: /home/gb511/comparison_repos/SRFLOW_pretrained_models/SRFlow_CelebA_8X.pth
+#  pretrain_model_G: ../experiments/pretrained_models/SR_CelebA_X8_HCFlow+.pth
+#  pretrain_model_G: ../experiments/pretrained_models/SR_CelebA_X8_HCFlow++.pth
+
+
