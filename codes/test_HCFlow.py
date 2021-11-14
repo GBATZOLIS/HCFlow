@@ -13,6 +13,7 @@ from utils.imresize import imresize
 from utils.fid import InceptionV3, get_activation_fn, get_fid_fn
 from torchvision.transforms import Resize
 from torchvision.transforms.functional import InterpolationMode
+from tqdm import tqdm
 #END ADDITION
 
 from data.util import bgr2ycbcr
@@ -107,7 +108,7 @@ for test_loader in test_loaders:
             sample_activations[heat][sample]=[]
     #END ADDITION
 
-    for test_data in test_loader:
+    for test_data in tqdm(test_loader):
         idx += 1
 
         real_image = True if test_loader.dataset.opt['mode'] == 'LQ' else False
@@ -219,7 +220,7 @@ for test_loader in test_loaders:
                 bic_hr_psnr_y /= opt['val']['n_sample']
                 bic_hr_ssim_y /= opt['val']['n_sample']
 
-
+                '''
                 logger.info('{:20s} ({}samples),heat:{:.1f}) '
                             'HR:PSNR/SSIM/PSNR_Y/SSIM_Y/LPIPS/Diversity: {:.2f}/{:.4f}/{:.2f}/{:.4f}/{:.4f}/{:.4f}, '
                             'bicHR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, '
@@ -228,6 +229,7 @@ for test_loader in test_loaders:
                             psnr, ssim, psnr_y, ssim_y, lpips_value, diversity_dict[(idx, heat)],
                             bic_hr_psnr, bic_hr_ssim, bic_hr_psnr_y, bic_hr_ssim_y,
                             lr_psnr, lr_ssim, lr_psnr_y, lr_ssim_y, nll))
+                '''
 
     # Average PSNR/SSIM results
     avg_lr_psnr /= idx
