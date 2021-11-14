@@ -151,9 +151,9 @@ for test_loader in test_loaders:
             for sample in range(opt['val']['n_sample']):
                 resize_to_hr = Resize(visuals['GT'].size(-1), interpolation=InterpolationMode.NEAREST)
                 upscaled_lr = resize_to_hr(visuals['LQ'])
-                print(upscaled_lr.size())
-                gt_activations['GT'][sample].append(activation_fn(visuals['GT'].to('cuda')))
-                gt_activations['LQ'][sample].append(activation_fn(upscaled_lr.to('cuda')))
+
+                gt_activations['GT'][sample].append(activation_fn(visuals['GT'].unsqueeze(0).to('cuda')))
+                gt_activations['LQ'][sample].append(activation_fn(upscaled_lr.unsqueeze(0).to('cuda')))
             #END ADDITION
 
             for heat in opt['val']['heats']:
