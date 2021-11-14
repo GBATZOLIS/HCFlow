@@ -109,10 +109,10 @@ for test_loader in test_loaders:
     #END ADDITION
 
     for i, test_data in tqdm(enumerate(test_loader)):
-        idx += 1
-
-        if i>=100:
+        if i>=5:
             break
+
+        idx += 1
 
         real_image = True if test_loader.dataset.opt['mode'] == 'LQ' else False
         img_path = test_data['LQ_path'][0] if real_image else test_data['GT_path'][0]
