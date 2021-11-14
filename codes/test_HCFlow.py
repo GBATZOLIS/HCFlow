@@ -115,8 +115,8 @@ for test_loader in test_loaders:
         img_name = os.path.splitext(os.path.basename(img_path))[0]
 
         model.feed_data(test_data, need_GT=not real_image)
-        #nll = model.test()
-        #avg_nll += nll
+        nll = model.test()
+        avg_nll += nll
         visuals = model.get_current_visuals(need_GT=not real_image)
 
         # deal with real-world data (just save)
