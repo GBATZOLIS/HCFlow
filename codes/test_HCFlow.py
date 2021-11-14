@@ -11,6 +11,7 @@ from utils.imresize import imresize
 
 #ADDITION
 from utils.fid import InceptionV3, get_activation_fn, get_fid_fn
+#END ADDITION
 
 from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
@@ -54,12 +55,16 @@ crop_border = opt['crop_border'] if opt['crop_border'] else opt['scale']
 
 #ADDITION
 #set up the inception model
-device='cuda'
+
 dims = 2048
 block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
-inception_model = InceptionV3([block_idx], resize_input=True).to(device)
+inception_model = InceptionV3([block_idx], resize_input=True).to('cuda')
 inception_model.eval()
 activation_fn = get_activation_fn(inception_model)
+
+target_fid_fn = get_fid_fn('target')
+joint_fid_fn = get_fid_fn('joint')
+#END ADDITION
 
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
@@ -84,6 +89,23 @@ for test_loader in test_loaders:
     avg_lr_psnr_y = 0.0
     avg_lr_ssim_y = 0.0
     avg_nll = 0.0
+
+    #START ADDITION
+    gt_activations = {'GT': {},
+                      'LQ': {}}
+    
+    for sample in range(opt['val']['n_sample']):
+        gt_activations['GT'][sample]=[]
+        gt_activations['LQ'][sample]=[]
+
+    sample_activations = {}
+    for heat in opt['val']['heats']:
+        sample_activations[heat] = {}
+        for sample in range(opt['val']['n_sample']):
+            sample_activations[heat][sample]=[]
+    #END ADDITION
+
+    
 
     for test_data in test_loader:
         idx += 1
@@ -111,7 +133,6 @@ for test_loader in test_loaders:
 
         # deal with synthetic data (calculate psnr and save)
         else:
-
             # calculate PSNR for LR
             gt_img_lr = util.tensor2img(visuals['LQ'])
             sr_img_lr = util.tensor2img(visuals['LQ_fromH'])
@@ -125,6 +146,12 @@ for test_loader in test_loaders:
             avg_lr_ssim += lr_ssim
             avg_lr_psnr_y += lr_psnr_y
             avg_lr_ssim_y += lr_ssim_y
+
+            #START ADDITION
+            for sample in range(opt['val']['n_sample']):
+                gt_activations['GT'][sample].append(activation_fn(visuals['GT'].to('cuda')))
+                gt_activations['LQ'][sample].append(activation_fn(visuals['GT'].to('cuda')))
+            #END ADDITION
 
             for heat in opt['val']['heats']:
                 psnr = 0.0
@@ -141,8 +168,13 @@ for test_loader in test_loaders:
                 for sample in range(opt['val']['n_sample']):
                     gt_img = visuals['GT']
                     sr_img = visuals['SR', heat, sample]
-                    sr_img_list.append(sr_img.unsqueeze(0)*255)
+                    
+                    #START ADDITION
+                    sample_activations[heat][sample].append(activation_fn(sr_img.to('cuda'))) #USED FOR FID CALCULATION
+                    #END ADDITION
+                    
                     lpips_dict[(idx, heat, sample)] = float(loss_fn_alex(2 * gt_img.to('cuda') - 1, 2 * sr_img.to('cuda') - 1).cpu())
+                    sr_img_list.append(sr_img.unsqueeze(0)*255)
                     lpips_value += lpips_dict[(idx, heat, sample)]
 
                     gt_img = util.tensor2img(gt_img)  # uint8
@@ -206,6 +238,19 @@ for test_loader in test_loaders:
     else:
         logger.info('-------------------------------------------------------------------------------------')
         for heat in opt['val']['heats']:
+            #START ADDITION
+            #Calculate average UFID/JFID scores.
+            acts = {'x':gt_activations['GT'], 'y':gt_activations['LQ'], 'samples': sample_activations[heat]}
+            
+            ufid_dict = target_fid_fn(acts) #sample->ufid
+            ufid_values = [ufid_dict[draw] for draw in ufid_dict.keys()]
+            ufid_mean, ufid_std = np.mean(ufid_values), np.std(ufid_values)
+
+            jfid_dict = joint_fid_fn(acts)
+            jfid_values = [jfid_dict[draw] for draw in jfid_dict.keys()]
+            jfid_mean, jfid_std = np.mean(jfid_values), np.std(jfid_values)
+            #END ADDITION
+
             avg_psnr = 0.0
             avg_ssim = 0.0
             avg_psnr_y = 0.0
@@ -244,10 +289,10 @@ for test_loader in test_loaders:
             # log
             logger.info(opt['path']['pretrain_model_G'])
             logger.info('----{} ({}images,{}samples,heat:{:.1f}) '
-                        'average HR:PSNR/SSIM/PSNR_Y/SSIM_Y/LPIPS/Diversity: {:.2f}/{:.4f}/{:.2f}/{:.4f}/{:.4f}/{:.4f}, '
+                        'average HR:PSNR/SSIM/PSNR_Y/SSIM_Y/LPIPS/Diversity/UFID/JFID: {:.2f}/{:.4f}/{:.2f}/{:.4f}/{:.4f}/{:.4f}/{:.4f}({:.4f})/{:.4f}({:.4f}), '
                         'bicHR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, '
                         'LR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, NLL: {:.4f}'.format(
                     test_set_name, idx, opt['val']['n_sample'], heat,
-                avg_psnr, avg_ssim, avg_psnr_y, avg_ssim_y, avg_lpips, avg_diversity,
+                avg_psnr, avg_ssim, avg_psnr_y, avg_ssim_y, avg_lpips, avg_diversity,ufid_mean,ufid_std,jfid_mean,jfid_std,
                 avg_bic_hr_psnr, avg_bic_hr_ssim, avg_bic_hr_psnr_y, avg_bic_hr_ssim_y,
                 avg_lr_psnr, avg_lr_ssim, avg_lr_psnr_y, avg_lr_ssim_y, avg_nll))

@@ -11,18 +11,18 @@ gpu_ids: [0]
 
 #### datasets
 datasets:
-  #test0:
-  #  name: example_face_8X
-  #  mode: GTLQ
-  #  dataroot_GT: ../datasets/example_face_8X/HR
-  #  dataroot_LQ: ../datasets/example_face_8X/LR
+  test0:
+    name: HCFLOW_vs_DSE
+    mode: GTLQ
+    dataroot_GT: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/x_gt
+    dataroot_LQ: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/y_gt
 
-  test:
-    name: SR_CelebA_8X_160_val
-    mode: LRHR_PKL
-    dataroot_GT: /home/gb511/score_sde_pytorch-1/datasets/celebA-HQ-160/CelebAHq_160_MBic_va.pklv4
-    dataroot_LQ: /home/gb511/score_sde_pytorch-1/datasets/celebA-HQ-160/CelebAHq_160_MBic_va_X8.pklv4
-    n_max: 5000
+ # val:
+ #   name: SR_CelebA_8X_160_val
+ #   mode: LRHR_PKL
+ #   dataroot_GT: /home/gb511/score_sde_pytorch-1/datasets/celebA-HQ-160/CelebAHq_160_MBic_va.pklv4
+ #   dataroot_LQ: /home/gb511/score_sde_pytorch-1/datasets/celebA-HQ-160/CelebAHq_160_MBic_va_X8.pklv4
+ #   n_max: 5000
 #
 #  test:
 #    name: SR_CelebA_8X_160_test
