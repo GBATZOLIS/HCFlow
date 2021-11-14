@@ -11,6 +11,8 @@ from utils.imresize import imresize
 
 #ADDITION
 from utils.fid import InceptionV3, get_activation_fn, get_fid_fn
+from torchvision.transforms import Resize
+from torchvision.transforms.functional import InterpolationMode
 #END ADDITION
 
 from data.util import bgr2ycbcr
@@ -105,8 +107,6 @@ for test_loader in test_loaders:
             sample_activations[heat][sample]=[]
     #END ADDITION
 
-    
-
     for test_data in test_loader:
         idx += 1
 
@@ -114,11 +114,9 @@ for test_loader in test_loaders:
         img_path = test_data['LQ_path'][0] if real_image else test_data['GT_path'][0]
         img_name = os.path.splitext(os.path.basename(img_path))[0]
 
-        print(test_data['LQ'].size(), test_data['GT'].size())
-        break
         model.feed_data(test_data, need_GT=not real_image)
-        nll = model.test()
-        avg_nll += nll
+        #nll = model.test()
+        #avg_nll += nll
         visuals = model.get_current_visuals(need_GT=not real_image)
 
         # deal with real-world data (just save)
@@ -151,8 +149,11 @@ for test_loader in test_loaders:
 
             #START ADDITION
             for sample in range(opt['val']['n_sample']):
+                resize_to_hr = Resize(visuals['GT'].size(-1), interpolation=InterpolationMode.NEAREST)
+                upscaled_lr = resize_to_hr(visuals['LQ'])
+                print(upscaled_lr.size())
                 gt_activations['GT'][sample].append(activation_fn(visuals['GT'].to('cuda')))
-                gt_activations['LQ'][sample].append(activation_fn(visuals['GT'].to('cuda')))
+                gt_activations['LQ'][sample].append(activation_fn(upscaled_lr.to('cuda')))
             #END ADDITION
 
             for heat in opt['val']['heats']:

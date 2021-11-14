@@ -13,7 +13,7 @@ gpu_ids: [0]
 datasets:
   test0:
     name: HCFLOW_vs_DSE
-    mode: GTLQ
+    mode: GT
     dataroot_GT: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/x_gt
     dataroot_LQ: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/y_gt
 
