@@ -107,7 +107,7 @@ for test_loader in test_loaders:
             sample_activations[heat][sample]=[]
     #END ADDITION
 
-    for i, test_data in tqdm(enumerate(test_loader)):
+    for test_data in tqdm(test_loader):
         idx += 1
 
         real_image = True if test_loader.dataset.opt['mode'] == 'LQ' else False
