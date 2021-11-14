@@ -8,6 +8,10 @@ import torch
 import options.options as option
 import utils.util as util
 from utils.imresize import imresize
+
+#ADDITION
+from utils.fid import InceptionV3, get_activation_fn, get_fid_fn
+
 from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
 from models import create_model
@@ -47,6 +51,15 @@ for phase, dataset_opt in sorted(opt['datasets'].items()):
 model = create_model(opt)
 loss_fn_alex = lpips.LPIPS(net='alex').to('cuda')
 crop_border = opt['crop_border'] if opt['crop_border'] else opt['scale']
+
+#ADDITION
+#set up the inception model
+device='cuda'
+dims = 2048
+block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
+inception_model = InceptionV3([block_idx], resize_input=True).to(device)
+inception_model.eval()
+activation_fn = get_activation_fn(inception_model)
 
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
