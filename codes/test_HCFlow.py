@@ -58,7 +58,6 @@ crop_border = opt['crop_border'] if opt['crop_border'] else opt['scale']
 
 #ADDITION
 #set up the inception model
-
 dims = 2048
 block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
 inception_model = InceptionV3([block_idx], resize_input=True).to('cuda')
@@ -109,9 +108,6 @@ for test_loader in test_loaders:
     #END ADDITION
 
     for i, test_data in tqdm(enumerate(test_loader)):
-        if i>=5:
-            break
-
         idx += 1
 
         real_image = True if test_loader.dataset.opt['mode'] == 'LQ' else False
@@ -234,6 +230,7 @@ for test_loader in test_loaders:
                             lr_psnr, lr_ssim, lr_psnr_y, lr_ssim_y, nll))
                 '''
 
+                
     # Average PSNR/SSIM results
     avg_lr_psnr /= idx
     avg_lr_ssim /= idx
