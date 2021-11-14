@@ -16,6 +16,7 @@ datasets:
     mode: GT
     dataroot_GT: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/x_gt
     dataroot_LQ: /home/gb511/comparison_repos/HCFLOW/datasets/test_celebA/y_gt
+    n_max: 100
 
  # val:
  #   name: SR_CelebA_8X_160_val
