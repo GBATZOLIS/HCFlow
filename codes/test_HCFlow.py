@@ -173,7 +173,7 @@ for test_loader in test_loaders:
                     sr_img = visuals['SR', heat, sample]
                     
                     #START ADDITION
-                    sample_activations[heat][sample].append(activation_fn(sr_img.to('cuda'))) #USED FOR FID CALCULATION
+                    sample_activations[heat][sample].append(activation_fn(sr_img.unsqueeze(0).to('cuda'))) #USED FOR FID CALCULATION
                     #END ADDITION
                     
                     lpips_dict[(idx, heat, sample)] = float(loss_fn_alex(2 * gt_img.to('cuda') - 1, 2 * sr_img.to('cuda') - 1).cpu())
