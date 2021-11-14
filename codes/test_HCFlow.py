@@ -114,6 +114,8 @@ for test_loader in test_loaders:
         img_path = test_data['LQ_path'][0] if real_image else test_data['GT_path'][0]
         img_name = os.path.splitext(os.path.basename(img_path))[0]
 
+        print(test_data['LQ'].size(), test_data['GT'].size())
+        break
         model.feed_data(test_data, need_GT=not real_image)
         nll = model.test()
         avg_nll += nll
