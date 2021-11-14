@@ -73,7 +73,7 @@ val:
 path:
   strict_load: true
   load_submodule: ~
-   pretrain_model_G: ../experiments/pretrained_models/SR_CelebA_X8_HCFlow.pth
+   pretrain_model_G: /home/gb511/comparison_repos/HCFLOW/experiments/pretrained_models/SR_CelebA_X8_HCFlow.pth
 #  pretrain_model_G: ../experiments/pretrained_models/SR_CelebA_X8_HCFlow+.pth
 #  pretrain_model_G: ../experiments/pretrained_models/SR_CelebA_X8_HCFlow++.pth
 
