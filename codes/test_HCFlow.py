@@ -111,7 +111,7 @@ for test_loader in test_loaders:
     #END ADDITION
 
     for test_data in tqdm(test_loader):
-        if i>10:
+        if idx>10:
             break
         idx += 1
 
