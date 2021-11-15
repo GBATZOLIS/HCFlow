@@ -2,7 +2,7 @@
 name: HCFlowpp_VS_DSE
 suffix: ~
 use_tb_logger: true
-model: HCFlowpp_SR
+model: HCFlow_SR
 distortion: sr
 scale: 8
 quant: 256
