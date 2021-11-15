@@ -145,7 +145,7 @@ class SRFLOWFlowStep(nn.Module):
             z, logdet = self.actnorm(z, logdet=logdet, reverse=False)
 
         # 2. permute
-        z, logdet = FlowStep.FlowPermutation[self.flow_permutation](
+        z, logdet = SRFLOWFlowStep.FlowPermutation[self.flow_permutation](
             self, z, logdet, False)
 
         need_features = self.affine_need_features()
@@ -166,7 +166,7 @@ class SRFLOWFlowStep(nn.Module):
             z, logdet = self.affine(input=z, logdet=logdet, reverse=True, ft=img_ft)
 
         # 2. permute
-        z, logdet = FlowStep.FlowPermutation[self.flow_permutation](
+        z, logdet = SRFLOWFlowStep.FlowPermutation[self.flow_permutation](
             self, z, logdet, True)
 
         # 3. actnorm
