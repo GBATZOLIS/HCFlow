@@ -93,9 +93,9 @@ class SRFLOWFlowStep(nn.Module):
                  LU_decomposed=False, opt=None, image_injector=None, idx=None, acOpt=None, normOpt=None, in_shape=None,
                  position=None):
         # check configures
-        assert flow_permutation in FlowStep.FlowPermutation, \
+        assert flow_permutation in SRFLOWFlowStep.FlowPermutation, \
             "float_permutation should be in `{}`".format(
-                FlowStep.FlowPermutation.keys())
+                SRFLOWFlowStep.FlowPermutation.keys())
         super().__init__()
         self.flow_permutation = flow_permutation
         self.flow_coupling = flow_coupling
