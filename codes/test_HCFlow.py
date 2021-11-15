@@ -174,9 +174,7 @@ for test_loader in test_loaders:
                 sr_img_list =[]
                 for sample in range(opt['val']['n_sample']):
                     gt_img = visuals['GT']
-                    sr_img = visuals['SR', heat, sample]
-                    print(gt_img.min(), gt_img.max())
-                    print(sr_img.min(), sr_img.max())
+                    sr_img = torch.clamp(visuals['SR', heat, sample], min=0, max=1)
 
                     #START ADDITION
                     sample_activations[heat][sample].append(activation_fn(sr_img.unsqueeze(0).to('cuda'))) #USED FOR FID CALCULATION
