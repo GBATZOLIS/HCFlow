@@ -111,8 +111,6 @@ for test_loader in test_loaders:
     #END ADDITION
 
     for test_data in tqdm(test_loader):
-        if idx>10:
-            break
         idx += 1
 
         real_image = True if test_loader.dataset.opt['mode'] == 'LQ' else False
