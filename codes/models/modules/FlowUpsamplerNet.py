@@ -6,7 +6,7 @@ import models.modules.Split
 from models.modules import flow, thops
 from models.modules.Split import Split2d
 from models.modules.glow_arch import f_conv2d_bias
-from models.modules.FlowStep import FlowStep
+from models.modules.FlowStep import SRFLOWFlowStep as FlowStep
 from utils.util import opt_get
 
 
