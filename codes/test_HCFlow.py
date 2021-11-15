@@ -175,8 +175,9 @@ for test_loader in test_loaders:
                 for sample in range(opt['val']['n_sample']):
                     gt_img = visuals['GT']
                     sr_img = visuals['SR', heat, sample]
+                    print(gt_img.min(), gt_img.max())
                     print(sr_img.min(), sr_img.max())
-                    
+
                     #START ADDITION
                     sample_activations[heat][sample].append(activation_fn(sr_img.unsqueeze(0).to('cuda'))) #USED FOR FID CALCULATION
                     #END ADDITION
