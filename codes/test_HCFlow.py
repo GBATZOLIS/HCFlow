@@ -86,10 +86,13 @@ for test_loader in test_loaders:
     bic_hr_ssim_y_dict = {}
     lpips_dict = {}
     diversity_dict = {} # pixel-wise variance
-    avg_lr_psnr = 0.0 # for generated LR image
-    avg_lr_ssim = 0.0
-    avg_lr_psnr_y = 0.0
-    avg_lr_ssim_y = 0.0
+
+    if opt['model'].startswith('HCFlow'):
+        avg_lr_psnr = 0.0 # for generated LR image
+        avg_lr_ssim = 0.0
+        avg_lr_psnr_y = 0.0
+        avg_lr_ssim_y = 0.0
+
     avg_nll = 0.0
 
     #START ADDITION
@@ -132,20 +135,21 @@ for test_loader in test_loaders:
                     util.save_img(sr_img, save_img_path)
 
         # deal with synthetic data (calculate psnr and save)
-        else:
-            # calculate PSNR for LR
-            gt_img_lr = util.tensor2img(visuals['LQ'])
-            sr_img_lr = util.tensor2img(visuals['LQ_fromH'])
-            # save_img_path = os.path.join(dataset_dir, 'LR_{:s}_{:.1f}_{:d}.png'.format(img_name, 1.0, 0))
-            # util.save_img(sr_img_lr, save_img_path)
-            gt_img_lr = gt_img_lr / 255.
-            sr_img_lr = sr_img_lr / 255.
+        else:   
+            if opt['model'].startswith('HCFlow'):
+                # calculate PSNR for LR
+                gt_img_lr = util.tensor2img(visuals['LQ'])
+                sr_img_lr = util.tensor2img(visuals['LQ_fromH'])
+                # save_img_path = os.path.join(dataset_dir, 'LR_{:s}_{:.1f}_{:d}.png'.format(img_name, 1.0, 0))
+                # util.save_img(sr_img_lr, save_img_path)
+                gt_img_lr = gt_img_lr / 255.
+                sr_img_lr = sr_img_lr / 255.
 
-            lr_psnr, lr_ssim, lr_psnr_y, lr_ssim_y = util.calculate_psnr_ssim(gt_img_lr, sr_img_lr, 0)
-            avg_lr_psnr += lr_psnr
-            avg_lr_ssim += lr_ssim
-            avg_lr_psnr_y += lr_psnr_y
-            avg_lr_ssim_y += lr_ssim_y
+                lr_psnr, lr_ssim, lr_psnr_y, lr_ssim_y = util.calculate_psnr_ssim(gt_img_lr, sr_img_lr, 0)
+                avg_lr_psnr += lr_psnr
+                avg_lr_ssim += lr_ssim
+                avg_lr_psnr_y += lr_psnr_y
+                avg_lr_ssim_y += lr_ssim_y
 
             #START ADDITION
             for sample in range(opt['val']['n_sample']):
@@ -230,12 +234,13 @@ for test_loader in test_loaders:
                             lr_psnr, lr_ssim, lr_psnr_y, lr_ssim_y, nll))
                 '''
 
-                
-    # Average PSNR/SSIM results
-    avg_lr_psnr /= idx
-    avg_lr_ssim /= idx
-    avg_lr_psnr_y /= idx
-    avg_lr_ssim_y /= idx
+    if opt['model'].startswith('HCFlow'):
+        # Average PSNR/SSIM results
+        avg_lr_psnr /= idx
+        avg_lr_ssim /= idx
+        avg_lr_psnr_y /= idx
+        avg_lr_ssim_y /= idx
+
     avg_nll = avg_nll / idx
 
     if real_image:
@@ -292,12 +297,23 @@ for test_loader in test_loaders:
             avg_bic_hr_ssim_y = avg_bic_hr_ssim_y / idx / opt['val']['n_sample']
 
             # log
-            logger.info(opt['path']['pretrain_model_G'])
-            logger.info('----{} ({}images,{}samples,heat:{:.1f}) '
-                        'average HR:PSNR/SSIM/PSNR_Y/SSIM_Y/LPIPS/Diversity/UFID/JFID: {:.2f}/{:.4f}/{:.2f}/{:.4f}/{:.4f}/{:.4f}/{:.4f}({:.4f})/{:.4f}({:.4f}), '
-                        'bicHR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, '
-                        'LR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, NLL: {:.4f}'.format(
-                    test_set_name, idx, opt['val']['n_sample'], heat,
-                avg_psnr, avg_ssim, avg_psnr_y, avg_ssim_y, avg_lpips, avg_diversity,ufid_mean,ufid_std,jfid_mean,jfid_std,
-                avg_bic_hr_psnr, avg_bic_hr_ssim, avg_bic_hr_psnr_y, avg_bic_hr_ssim_y,
-                avg_lr_psnr, avg_lr_ssim, avg_lr_psnr_y, avg_lr_ssim_y, avg_nll))
+            if opt['model'].startswith('HCFlow'):
+                logger.info(opt['path']['pretrain_model_G'])
+                logger.info('----{} ({}images,{}samples,heat:{:.1f}) '
+                            'average HR:PSNR/SSIM/PSNR_Y/SSIM_Y/LPIPS/Diversity/UFID/JFID: {:.2f}/{:.4f}/{:.2f}/{:.4f}/{:.4f}/{:.4f}/{:.4f}({:.4f})/{:.4f}({:.4f}), '
+                            'bicHR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, '
+                            'LR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, NLL: {:.4f}'.format(
+                        test_set_name, idx, opt['val']['n_sample'], heat,
+                    avg_psnr, avg_ssim, avg_psnr_y, avg_ssim_y, avg_lpips, avg_diversity,ufid_mean,ufid_std,jfid_mean,jfid_std,
+                    avg_bic_hr_psnr, avg_bic_hr_ssim, avg_bic_hr_psnr_y, avg_bic_hr_ssim_y,
+                    avg_lr_psnr, avg_lr_ssim, avg_lr_psnr_y, avg_lr_ssim_y, avg_nll))
+            else:
+                logger.info(opt['path']['pretrain_model_G'])
+                logger.info('----{} ({}images,{}samples,heat:{:.1f}) '
+                            'average HR:PSNR/SSIM/PSNR_Y/SSIM_Y/LPIPS/Diversity/UFID/JFID: {:.2f}/{:.4f}/{:.2f}/{:.4f}/{:.4f}/{:.4f}/{:.4f}({:.4f})/{:.4f}({:.4f}), '
+                            'bicHR:PSNR/SSIM/PSNR_Y/SSIM_Y: {:.2f}/{:.4f}/{:.2f}/{:.4f}, '
+                            ', NLL: {:.4f}'.format(
+                        test_set_name, idx, opt['val']['n_sample'], heat,
+                    avg_psnr, avg_ssim, avg_psnr_y, avg_ssim_y, avg_lpips, avg_diversity,ufid_mean,ufid_std,jfid_mean,jfid_std,
+                    avg_bic_hr_psnr, avg_bic_hr_ssim, avg_bic_hr_psnr_y, avg_bic_hr_ssim_y,
+                    avg_nll))
